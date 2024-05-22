@@ -1,7 +1,8 @@
+import os
+import pandas as pd
 import pdfplumber
 import re
 from datasets import Dataset, load_dataset
-import pandas as pd
 from transformers import (
     AutoTokenizer, 
     AutoModelForCausalLM, 
@@ -18,7 +19,14 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
-pdf_paths = ["./documents/Constitutia.pdf", "./documents/CodCivil.pdf", "./documents/CodPenal.pdf"]
+
+pdf_paths = [
+             "./documents/Constitutia.pdf", "./documents/CodCivil.pdf", "./documents/CodPenal.pdf",
+             "./documents/CodulMuncii.pdf", "./documents/CodProceduraCivila.pdf", 
+             "./documents/CodProceduraPenala.pdf", "./documents/CodFiscal.pdf",
+             "./documents/LegeaSanatatii.pdf", "./documents/LegeaEducatiei.pdf",
+             "./documents/ModelCIM.pdf"
+             ]
 texts = [extract_text_from_pdf(pdf_path) for pdf_path in pdf_paths]
 
 # Preprocess the Text
