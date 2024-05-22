@@ -3,7 +3,8 @@ import torch
 import gradio as gr
 
 # Load the fine-tuned model and tokenizer
-model_name = "fine-tuned-saullm-7b-romanian-legal"
+# model_name = "fine-tuned-saullm-7b-romanian-legal"
+model_name = "Equall/Saul-Instruct-v1"
 model = AutoModelForCausalLM.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
