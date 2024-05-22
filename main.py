@@ -7,7 +7,7 @@ from transformers import (
     AutoModelForCausalLM, 
     DataCollatorForLanguageModeling, 
     Trainer, TrainingArguments)
-
+import torch
 from sklearn.model_selection import train_test_split
 
 # Extract Text from Each PDF
@@ -76,7 +76,15 @@ def tokenize_function(examples):
 tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
 tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
 
-
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    # Shift the logits and labels for evaluation
+    shift_logits = logits[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
+    loss_fct = torch.nn.CrossEntropyLoss(ignore_index=-100)
+    loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+    perplexity = torch.exp(loss)
+    return {"perplexity": perplexity.item(), "loss": loss.item()}
 
 # Fine-tune the Model
 
@@ -104,9 +112,14 @@ trainer = Trainer(
     eval_dataset=tokenized_val_dataset,
     tokenizer=tokenizer,
     data_collator=data_collator,
+    compute_metrics=compute_metrics,
 )
 
 trainer.train()
+
+# Evaluate the model using the validation dataset
+eval_results = trainer.evaluate()
+print(f"Evaluation results: {eval_results}")
 
 # Save the fine-tuned model
 model.save_pretrained("fine-tuned-saullm-7b-romanian-legal")
